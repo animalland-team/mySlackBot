@@ -1,9 +1,22 @@
-# slackbot
-slackbot
 
-grunt実行でbotmain以下のtsをjsにコンパイルします
+"node bot.js"
 
-メモ tsdでモジュール定義追加
+でボットを実行します。
+
+永続化する場合は、
+
+"forever start bot.js  -l ./bot.log"
+
+とか
+
+"grunt"
+
+でbotmain以下のtsをjsにコンパイルします
+
+
+メモ
+
+tsdでモジュール定義追加
 
 tsd query モジュール名 --action install --resolve --save
 
