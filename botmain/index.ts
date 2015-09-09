@@ -1,6 +1,8 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 var Slack = require('./node-slack-client/client');
+var http = require('http');
+var querystring = require('querystring');
 
 var ADMIN_USERS:string[] = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 
@@ -55,6 +57,7 @@ class BotMain {
 
     constructor() {
         console.log('BotMain instantiated.');
+        http.createServer(this._handleHttpRequest.bind(this)).listen(process.env.PORT || 5000);
     }
 
     start(token:string):void {
@@ -131,6 +134,10 @@ class BotMain {
     }
 
     private _handleDirectMessage(user:IUser, text:string):void {
+        this._talkInRandomChannel(text);
+    }
+
+    private _talkInRandomChannel(text:string):void {
         if(this._channelRandom) {
             this._channelRandom.send(text);
         }
@@ -150,6 +157,20 @@ class BotMain {
             channel.send('PONG');
         }
 
+    }
+
+    private _handleHttpRequest(request:any, response:any):void {
+        var url:string = request.url;
+        var text:string = querystring.unescape(url.slice(1));
+        response.writeHead(200, {"Content-Type": 'text/plain'});
+        response.write('Animal land is alive!\n');
+        response.write(request.method + ' '+ url + '\n');
+        response.write(text + '\n');
+        response.end();
+
+        if(text && text.length > 0) {
+            this._talkInRandomChannel(text);
+        }
     }
 
 }

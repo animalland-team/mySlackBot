@@ -1,5 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 var Slack = require('./node-slack-client/client');
+var http = require('http');
+var querystring = require('querystring');
 var ADMIN_USERS = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 // TODO d.tsが用意できたらInterfaceを削除
 var MESSAGE_TYPES = {
@@ -8,6 +10,7 @@ var MESSAGE_TYPES = {
 var BotMain = (function () {
     function BotMain() {
         console.log('BotMain instantiated.');
+        http.createServer(this._handleHttpRequest.bind(this)).listen(process.env.PORT || 5000);
     }
     BotMain.prototype.start = function (token) {
         var autoReconnect = true;
@@ -76,6 +79,9 @@ var BotMain = (function () {
         }
     };
     BotMain.prototype._handleDirectMessage = function (user, text) {
+        this._talkInRandomChannel(text);
+    };
+    BotMain.prototype._talkInRandomChannel = function (text) {
         if (this._channelRandom) {
             this._channelRandom.send(text);
         }
@@ -91,6 +97,18 @@ var BotMain = (function () {
         // TODO ここで正規表現とか使っていろいろ処理
         if (/^(ping|PING)$/.test(text)) {
             channel.send('PONG');
+        }
+    };
+    BotMain.prototype._handleHttpRequest = function (request, response) {
+        var url = request.url;
+        var text = querystring.unescape(url.slice(1));
+        response.writeHead(200, { "Content-Type": 'text/plain' });
+        response.write('Animal land is alive!\n');
+        response.write(request.method + ' ' + url + '\n');
+        response.write(text + '\n');
+        response.end();
+        if (text && text.length > 0) {
+            this._talkInRandomChannel(text);
         }
     };
     return BotMain;

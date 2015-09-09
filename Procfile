@@ -1,2 +1,1 @@
-web: bot.js xoxb-xxxxxxxxx
-
+web: node bot.js
