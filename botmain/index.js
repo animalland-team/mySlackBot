@@ -29,9 +29,9 @@ var BotMain = (function () {
             channel = this._slack.channels[id];
             if (channel.is_member) {
                 channels.push('#' + channel.name + ' (' + id + ')');
-            }
-            if (channel.name == 'random') {
-                this._channelRandom = channel;
+                if (channel.name === 'random') {
+                    this._channelRandom = channel;
+                }
             }
         }
         for (id in this._slack.groups) {
@@ -40,12 +40,14 @@ var BotMain = (function () {
                 groups.push(group.name);
             }
         }
-        console.log("Welcome to Slack. You are @" + this._slack.self.name + " of " + this._slack.team.name);
+        this._botUser = this._slack.self;
+        console.log("Welcome to Slack. You are @" + this._botUser.name + " of " + this._slack.team.name);
         console.log('You are in: ' + channels.join(', '));
         console.log('As well as: ' + groups.join(', '));
+        console.log('random channel : ', this._channelRandom ? '#' + this._channelRandom.name : 'N / A');
     };
     BotMain.prototype.onError = function (error) {
-        // string型だと思う
+        // errorはstring型だと思う
         return console.error("Error: " + error);
     };
     BotMain.prototype.onMessage = function (message) {
@@ -56,20 +58,21 @@ var BotMain = (function () {
         var timeStamp = message.ts;
         var channelName = 'UNKNOWN_CHANNEL';
         var userName = 'UNKNOWN_USER';
-        if (channel && channel.is_channel) {
+        if (channel && channel.name) {
             channelName = channel.name;
         }
         if (user && user.name) {
             userName = user.name;
         }
         console.log('Received(' + type + ') channel: #' + channelName, 'user: @' + userName, '"' + text + '"', timeStamp);
+        console.log(channelName === userName, channelName, userName);
         if (type === MESSAGE_TYPES.MESSAGE && text && channel) {
-            if (channelName === userName && ADMIN_USERS.indexOf(userName)) {
+            if (channelName === userName && ADMIN_USERS.indexOf(userName) >= 0) {
                 // プライベートメッセージ(チャンネル名＝ユーザ名)がきたら、そのままrandomチャンネルに投げるよ
                 this._handleDirectMessage(user, text);
             }
             else {
-                this._handletMessage(channel, user, text);
+                this._handleMessage(channel, user, text);
             }
         }
     };
@@ -78,11 +81,14 @@ var BotMain = (function () {
             this._channelRandom.send(text);
         }
     };
-    BotMain.prototype._handletMessage = function (channel, user, text) {
+    BotMain.prototype._handleMessage = function (channel, user, text) {
         if (text === void 0) { text = ''; }
-        // TODO ここで正規表現とか使って処理
-        var reg = /^(ping|PING)$/;
-        if (reg.test(text)) {
+        var reg = new RegExp('<@' + this._botUser.id + '>: .*');
+        var mentioned = reg.test(text);
+        if (!mentioned)
+            return;
+        // TODO ここで正規表現とか使っていろいろ処理
+        if (/ (ping|PING)$/.test(text)) {
             channel.send('PONG');
         }
     };
