@@ -2,8 +2,8 @@
 
 var Slack = require('../node-slack-client');
 
-var CHANNEL_ID_RANDOM = "C04TG7DQ1";
-var USER_NAME_HARAYOKI = "harayoki";
+var CHANNEL_ID_RANDOM = 'C04TG7DQ1'; // とりあえず決め打ち
+var ADMIN_USERS:string[] = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 
 // TODO d.tsが用意できたらInterfaceを削除
 
@@ -110,15 +110,15 @@ class BotMain {
         var channelName:string = 'UNKNOWN_CHANNEL';
         var userName:string = 'UNKNOWN_USER';
         if(channel && channel.is_channel) {
-            channelName = '#' + channel.name;
+            channelName = channel.name;
         }
         if(user && user.name) {
-            userName = '#' + user.name;
+            userName = user.name;
         }
-        console.log('Received(' + type + ') channel:' + channelName,'user:',userName, '"' + text + '"', timeStamp);
+        console.log('Received(' + type + ') channel: #' + channelName,'user: @' + userName, '"' + text + '"', timeStamp);
         if (type === MESSAGE_TYPES.MESSAGE && text && channel) {
-            if (channelName === USER_NAME_HARAYOKI) {
-                // プライベートメッセージがきたらそのままrandomチャンネルに投げるよ
+            if (channelName === userName && ADMIN_USERS.indexOf(userName)) {
+                // プライベートメッセージ(チャンネル名＝ユーザ名)がきたら、そのままrandomチャンネルに投げるよ
                 this._handleDirectMessage(user, text);
             } else {
                 this._handletMessage(channel, user, text);
@@ -131,8 +131,12 @@ class BotMain {
         this._channelRandom.send(text);
     }
 
-    private _handletMessage(channel:IChannel, user:IUser, text:string):void {
+    private _handletMessage(channel:IChannel, user:IUser, text:string = ''):void {
         // TODO ここで正規表現とか使って処理
+        var reg:RegExp = /^(ping|PING)$/;
+        if(reg.test(text)) {
+            channel.send('PONG');
+        }
     }
 
 }
