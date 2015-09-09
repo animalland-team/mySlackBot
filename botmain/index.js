@@ -1,6 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
 var Slack = require('../node-slack-client');
-var CHANNEL_ID_RANDOM = 'C04TG7DQ1'; // とりあえず決め打ち
 var ADMIN_USERS = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 // TODO d.tsが用意できたらInterfaceを削除
 var MESSAGE_TYPES = {
@@ -29,9 +28,11 @@ var BotMain = (function () {
         for (id in this._slack.channels) {
             channel = this._slack.channels[id];
             if (channel.is_member) {
-                channels.push("#" + channel.name);
+                channels.push('#' + channel.name + ' (' + id + ')');
             }
-            channels.push();
+            if (channel.name == 'random') {
+                this._channelRandom = channel;
+            }
         }
         for (id in this._slack.groups) {
             group = this._slack.groups[id];
@@ -42,7 +43,6 @@ var BotMain = (function () {
         console.log("Welcome to Slack. You are @" + this._slack.self.name + " of " + this._slack.team.name);
         console.log('You are in: ' + channels.join(', '));
         console.log('As well as: ' + groups.join(', '));
-        this._channelRandom = this._slack.getChannelGroupOrDMByID(CHANNEL_ID_RANDOM);
     };
     BotMain.prototype.onError = function (error) {
         // string型だと思う
@@ -74,7 +74,9 @@ var BotMain = (function () {
         }
     };
     BotMain.prototype._handleDirectMessage = function (user, text) {
-        this._channelRandom.send(text);
+        if (this._channelRandom) {
+            this._channelRandom.send(text);
+        }
     };
     BotMain.prototype._handletMessage = function (channel, user, text) {
         if (text === void 0) { text = ''; }

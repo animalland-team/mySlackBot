@@ -2,7 +2,6 @@
 
 var Slack = require('../node-slack-client');
 
-var CHANNEL_ID_RANDOM = 'C04TG7DQ1'; // とりあえず決め打ち
 var ADMIN_USERS:string[] = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 
 // TODO d.tsが用意できたらInterfaceを削除
@@ -78,9 +77,11 @@ class BotMain {
         for(id in this._slack.channels) {
             channel = this._slack.channels[id];
             if (channel.is_member) {
-                channels.push("#" + channel.name);
+                channels.push('#' + channel.name + ' (' + id + ')');
             }
-            channels.push();
+            if(channel.name == 'random') {
+                this._channelRandom = channel;
+            }
         }
         for(id in this._slack.groups) {
             group = this._slack.groups[id];
@@ -92,12 +93,10 @@ class BotMain {
         console.log('You are in: ' + channels.join(', '));
         console.log('As well as: ' + groups.join(', '));
 
-        this._channelRandom = this._slack.getChannelGroupOrDMByID(CHANNEL_ID_RANDOM);
-
     }
 
     private onError(error:string):void {
-        // string型だと思う
+        // errorはstring型だと思う
         return console.error("Error: " + error);
     }
 
@@ -128,7 +127,9 @@ class BotMain {
     }
 
     private _handleDirectMessage(user:IUser, text:string):void {
-        this._channelRandom.send(text);
+        if(this._channelRandom) {
+            this._channelRandom.send(text);
+        }
     }
 
     private _handletMessage(channel:IChannel, user:IUser, text:string = ''):void {
