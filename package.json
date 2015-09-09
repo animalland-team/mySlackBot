@@ -23,5 +23,9 @@
     "grunt-typescript": "^0.7.0",
     "tsd": "^0.6.4",
     "typescript": "^1.6.0-beta"
+  },
+  "dependencies": {
+    "log": "^1.4.0",
+    "ws": "^0.8.0"
   }
 }

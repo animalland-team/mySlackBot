@@ -1,3 +1,0 @@
-[submodule "node-slack-client"]
-	path = node-slack-client
-	url = https://github.com/slackhq/node-slack-client.git

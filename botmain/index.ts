@@ -1,6 +1,6 @@
 /// <reference path="../typings/tsd.d.ts" />
 
-var Slack = require('../node-slack-client');
+var Slack = require('./node-slack-client/client');
 
 var ADMIN_USERS:string[] = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 

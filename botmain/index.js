@@ -1,5 +1,5 @@
 /// <reference path="../typings/tsd.d.ts" />
-var Slack = require('../node-slack-client');
+var Slack = require('./node-slack-client/client');
 var ADMIN_USERS = ['harayoki', 'tkt', 'kenbu', 'ryota', 'charlie'];
 // TODO d.tsが用意できたらInterfaceを削除
 var MESSAGE_TYPES = {
