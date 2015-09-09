@@ -65,7 +65,6 @@ var BotMain = (function () {
             userName = user.name;
         }
         console.log('Received(' + type + ') channel: #' + channelName, 'user: @' + userName, '"' + text + '"', timeStamp);
-        console.log(channelName === userName, channelName, userName);
         if (type === MESSAGE_TYPES.MESSAGE && text && channel) {
             if (channelName === userName && ADMIN_USERS.indexOf(userName) >= 0) {
                 // プライベートメッセージ(チャンネル名＝ユーザ名)がきたら、そのままrandomチャンネルに投げるよ
@@ -87,8 +86,10 @@ var BotMain = (function () {
         var mentioned = reg.test(text);
         if (!mentioned)
             return;
+        // メンション後部分を取り出す
+        text = text.split(' ').slice(1).join(' ');
         // TODO ここで正規表現とか使っていろいろ処理
-        if (/ (ping|PING)$/.test(text)) {
+        if (/^(ping|PING)$/.test(text)) {
             channel.send('PONG');
         }
     };
