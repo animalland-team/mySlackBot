@@ -19,6 +19,7 @@
   "devDependencies": {
     "forever": "^0.15.1",
     "grunt": "^0.4.5",
+    "tsd": "^0.6.4",
     "typescript": "^1.6.0-beta"
   }
 }
